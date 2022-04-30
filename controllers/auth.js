@@ -1,19 +1,21 @@
 const User = require("../models/user.js");
-const moduleFunction = require("../fn");
 
 const crypto = require('crypto')
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
+const fn = require("./fn.js");
+
 
 exports.signUp = async (req, res) => {
   try {
-    moduleFunction.typeRequest(req).catch((err) => res.status(400).json(err));
+    await fn.validateInput(req.body.email, "string", "email is required")
+    await fn.validateInput(req.body.password, "string", "password is required")
     const hash = await bcrypt.hash(req.body.password, 10);
     const user = new User({
       email: req.body.email,
       password: hash,
     });
-    await user.save().catch((err) => res.status(400).json({ error: err }));
+    await user.save();
     res.status(201).json({ message: "user created" });
   } catch (err) {
     res.status(500).json({ error: err });
@@ -21,13 +23,13 @@ exports.signUp = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  try {
-    moduleFunction.typeRequest(req).catch((err) => res.status(400).json(err));
-
+  try {   
+    await fn.validateInput(req.body.email, "string", "email is required")
+    await fn.validateInput(req.body.password, "string", "password is required")
     requestedUser = await User.findOne({ email: req.body.email });
 
     if (!requestedUser) {
-      return res.status(400).json({ error: "user not found" });
+      return res.status(400).json({ error: "user not found" }); 
     }
 
     const authorize = await bcrypt.compare(

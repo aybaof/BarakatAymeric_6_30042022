@@ -1,4 +1,3 @@
-const express = require("express");
 const http = require("http");
 const app = require("./app");
 
@@ -51,6 +50,5 @@ server.on('listening' , () => {
 
 
 
-
-server.listen(app.port)
+server.listen(port)
 
