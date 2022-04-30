@@ -1,15 +1,25 @@
+require('dotenv').config()
+
 const express = require('express');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://aybaof974:m3CZCpGTFiE66XW@hottakes.0olnw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority' , {
-    useNewUrlParser : true,
-    useUnifiedTopology : true
-}).then(() => console.log("mongoDB ok")).catch(() => console.log("mongoDB not ok"));
-
 const app = express()
 
-app.use((req,res) => {
-    
-})
+const auth = require("./middleware/auth.js")
+const authRouter = require('./routes/auth.js');
+
+
+mongoose.connect(process.env.BDD , {
+    useNewUrlParser : true,
+    useUnifiedTopology : true
+}).then(e => console.log("mongo ok")).catch((err) =>{ throw err} );
+
+app.use("/api/auth" , authRouter);
+
+
+
+
+
+
 
 module.exports = app
