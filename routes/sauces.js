@@ -14,9 +14,11 @@ router.post("/" , multer.single('image') , sauceCtrl.newSauce)
 router.get("/:id" , sauceCtrl.getSpecific)
 
 // delete id specific sauce
-router.delete("/:id")
+router.delete("/:id" , sauceCtrl.deleteSauce)
 
 // toggle array id like 
-router.post("/:id/like")
+router.post("/:id/like" , sauceCtrl.toggleLike)
+
+router.put("/:id" , multer.single('image') , sauceCtrl.updateSauce)
 
 module.exports= router
