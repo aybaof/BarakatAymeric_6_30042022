@@ -1,4 +1,3 @@
-const { reject } = require("bcrypt/promises")
 const fs = require("fs")
 const path = require ("path")
 
