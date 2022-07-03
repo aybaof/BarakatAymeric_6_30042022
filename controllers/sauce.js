@@ -5,13 +5,13 @@ const fn = require("./fn.js");
 exports.getAll = (req, res) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
-    .catch((err) => res.status(400).json({ err }));
+    .catch((err) => res.status(400).json({ message : "Impossible de recupérer les sauces, réessayer plus tard." }));
 };
 
 exports.getSpecific = (req, res) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => res.status(200).json(sauce))
-    .catch((err) => res.status(404).json({ err }));
+    .catch((err) => res.status(404).json("Sauce non trouvé"));
 };
 
 exports.newSauce = async (req, res) => {
@@ -25,9 +25,9 @@ exports.newSauce = async (req, res) => {
       }`,
     });
     await sauce.save();
-    res.status(200).json({ message: "sauce created" });
+    res.status(200).json("Sauce crée");
   } catch (err) {
-    res.status(500).json({ err });
+    res.status(500).json("Impossible de rajoutez la sauce");
   }
 };
 
@@ -42,7 +42,7 @@ exports.deleteSauce = async (req, res) => {
     }
     res.status(200).json("Sauce deleted");
   } catch (err) {
-    res.status(500).json({ err });
+    res.status(500).json("Impossible de supprimer la sauce");
   }
 };
 
@@ -54,8 +54,8 @@ exports.updateSauce = (req, res) => {
         ...req.body,
       }
     )
-      .then(() => res.status(200).json("Sauce updated"))
-      .catch((err) => res.status(404).json({ err }));
+      .then(() => res.status(200).json("Sauce modifié"))
+      .catch((err) => res.status(404).json("Impossible de modifié la sauce"));
   } else {
     const requestBody = JSON.parse(req.body.sauce);
     Sauce.findOne({ _id: req.params.id, userId: requestBody.userId }).then(
@@ -70,8 +70,8 @@ exports.updateSauce = (req, res) => {
             }`,
           }
         )
-          .then(() => res.status(200).json("Sauce updated"))
-          .catch((err) => res.status(404).json({ err }));
+          .then(() => res.status(200).json("Sauce modifié"))
+          .catch((err) => res.status(404).json("Impossible de modifié la sauce"));
       }
     );
   }
@@ -99,8 +99,8 @@ exports.toggleLike = (req, res) => {
           new: true,
         }
       )
-        .then(() => res.status(200).json("Sauce liked"))
-        .catch((err) => res.status(500).json({ err }));
+        .then(() => res.status(200).json("Vous aimez la sauce"))
+        .catch((err) => res.status(500).json("Impossible d'apprécier la sauce"));
       break;
     case 0: {
       try {
@@ -117,10 +117,9 @@ exports.toggleLike = (req, res) => {
               if (!sauce) {
                 res
                   .status(500)
-                  .json({
-                    message:
-                      "You can't dislike a sauce you haven't liked or disliked",
-                  });
+                  .json(
+                      "Vous ne pouvez pas changer d'avis sur une sauce qui n'a pas été noté"
+                  );
               } else {
                 if (sauce.usersLiked.includes(req.body.userId)) {
                   sauce.usersLiked.pull(req.body.userId);
@@ -131,9 +130,9 @@ exports.toggleLike = (req, res) => {
                 }
                 sauce.save((err) => {
                   if (!err) {
-                    res.status(200).json("Opinion updated");
+                    res.status(200).json("Votre opinion a été modifié");
                   } else {
-                    res.status(500).json({ err });
+                    res.status(500).json("Impossible de changer votre opinion, veuillez réessayer plus tard");
                   }
                 });
               }
@@ -141,7 +140,7 @@ exports.toggleLike = (req, res) => {
           }
         );
       } catch (err) {
-        res.status(500).json({ err });
+        res.status(500).json("Une erreur c'est produite, veuillez réessayer plus tard");
       }
       // Sauce.findOneAndUpdate(
       //   {
@@ -201,8 +200,8 @@ exports.toggleLike = (req, res) => {
           new: true,
         }
       )
-        .then(() => res.status(200).json("Sauce Disliked"))
-        .catch((err) => res.status(500).json({ err }));
+        .then(() => res.status(200).json("Opinion partagée"))
+        .catch((err) => res.status(500).json("Votre opinion n'a pas été enregistré"));
       break;
     }
   }

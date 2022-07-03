@@ -1,23 +1,39 @@
-require('dotenv').config()
+require("dotenv").config();
 
-const path = require('path')
-const express = require('express');
-const mongoose = require('mongoose');
+const path = require("path");
+const express = require("express");
+const mongoose = require("mongoose");
+const helmet = require("helmet");
 
-const app = express()
+const app = express();
+app.use(helmet());
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     directives: {
+//       "script-src": ["'self'", "http://localhost:4200"],
+//       "style-src": null,
+//       "img-src": "http://localhost:4200",
+//     },
+//   })
+// );
+// app.use(helmet({ crossOriginOpenerPolicy: false }));
 
 const authMiddleware = require("./middleware/auth.js");
 
-const authRouter = require('./routes/auth.js');
+const authRouter = require("./routes/auth.js");
 const sauceRouter = require("./routes/sauces.js");
 
+mongoose
+  .connect(process.env.BDD, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((e) => console.log("mongo ok"))
+  .catch((err) => {
+    throw err;
+  });
 
-mongoose.connect(process.env.BDD , {
-    useNewUrlParser : true,
-    useUnifiedTopology : true
-}).then(e => console.log("mongo ok")).catch((err) =>{ throw err} );
-
-app.use(express.json())
+app.use(express.json());
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,17 +42,13 @@ app.use((req, res, next) => {
     next();
   });
 
-app.use('/public/images' , express.static(path.join(__dirname , 'public/images')))
+app.use(
+  "/public/images",
+  express.static(path.join(__dirname, "public/images"))
+);
 
-app.use("/api/auth" , authRouter);
+app.use("/api/auth", authRouter);
 
-app.use("/api/sauces" , authMiddleware ,sauceRouter)
+app.use("/api/sauces", authMiddleware, sauceRouter);
 
-
-
-
-
-
-
-
-module.exports = app
+module.exports = app;

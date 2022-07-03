@@ -16,9 +16,9 @@ exports.signUp = async (req, res) => {
       password: hash,
     });
     await user.save();
-    res.status(201).json({ message: "user created" });
+    res.status(201).json({ message: "Utilisateur crée" });
   } catch (err) {
-    res.status(500).json({ error: err });
+    err.errors.email.message ? res.status(401).json({ error: err.errors.email.message }) : res.status(500).json({ error: "Erreur lors de l'inscription" });
   }
 };
 
@@ -29,7 +29,7 @@ exports.login = async (req, res) => {
     requestedUser = await User.findOne({ email: req.body.email });
 
     if (!requestedUser) {
-      return res.status(400).json({ error: "user not found" }); 
+      return res.status(400).json({ error: "Verifiez vos informations de connexion" }); 
     }
 
     const authorize = await bcrypt.compare(
@@ -38,9 +38,8 @@ exports.login = async (req, res) => {
     );
 
     if (!authorize) {
-      return res.status(401).json({ error: "wrong password" });
+      return res.status(401).json({ error: "Verifiez vos informations de connexion"});
     }
-
     res.status(200).json({
       userId: requestedUser._id,
       token: jwt.sign(
@@ -50,6 +49,6 @@ exports.login = async (req, res) => {
           )
     });
   } catch (err) {
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: "Erreur lors de la connexion" });
   }
 };
