@@ -1,4 +1,6 @@
 const multer = require('multer')
+const fs = require("fs")
+const path = require("path")
 
 const MIME_TYPE = {
     "image/png" : "png",
@@ -11,8 +13,14 @@ const storage = multer.diskStorage({
         callback(null , 'public/images')
     },
     filename : (req , file , callback) => {
-        const name = file.originalname.replace(" ", "_")
-        callback(null, Date.now() + name)
+        let name = Date.now() + file.originalname.replace(" ", "_")
+        const isExtensionOk = MIME_TYPE[file.mimetype] ? true : false;
+        if(!isExtensionOk) return callback(new Error("Invalid extension") , null)
+        while(fs.existsSync(path.join( "../public/image/" , name))){
+            name = Date.now() + file.originalname.replace(" " , "_")
+        }
+        callback(null, name);
+        
     }
 })
 

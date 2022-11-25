@@ -6,16 +6,36 @@ const mongoose = require("mongoose");
 const helmet = require("helmet");
 
 const app = express();
-app.use(helmet());
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     directives: {
-//       "script-src": ["'self'", "http://localhost:4200"],
-//       "style-src": null,
-//       "img-src": "http://localhost:4200",
-//     },
-//   })
-// );
+
+app.use(helmet.contentSecurityPolicy());
+app.use(helmet.crossOriginEmbedderPolicy());
+app.use(helmet.crossOriginOpenerPolicy());
+app.use(helmet.crossOriginResourcePolicy({policy : "same-site" }));
+app.use(helmet.dnsPrefetchControl());
+app.use(helmet.expectCt());
+app.use(helmet.frameguard());
+app.use(helmet.hidePoweredBy());
+app.use(helmet.hsts());
+app.use(helmet.ieNoOpen());
+app.use(helmet.noSniff());
+app.use(helmet.originAgentCluster());
+app.use(helmet.permittedCrossDomainPolicies());
+app.use(helmet.referrerPolicy());
+app.use(helmet.xssFilter());
+
+
+
+
+// app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      "img-src": "*",
+    },
+  })
+);
+
+// app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 // app.use(helmet({ crossOriginOpenerPolicy: false }));
 
 const authMiddleware = require("./middleware/auth.js");
@@ -39,6 +59,10 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+
+    if(req.method === 'OPTIONS') {
+        return res.status(204);
+    }
     next();
   });
 

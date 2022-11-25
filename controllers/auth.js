@@ -18,7 +18,12 @@ exports.signUp = async (req, res) => {
     await user.save();
     res.status(201).json({ message: "Utilisateur crée" });
   } catch (err) {
-    err.errors.email.message ? res.status(401).json({ error: err.errors.email.message }) : res.status(500).json({ error: "Erreur lors de l'inscription" });
+    if(err.errors.email.message){
+      res.statusMessage =  err.errors.email.message
+      return res.status(401).send(err.errors.email.message)
+      
+    }
+     res.status(500).json(err);
   }
 };
 
@@ -29,7 +34,7 @@ exports.login = async (req, res) => {
     requestedUser = await User.findOne({ email: req.body.email });
 
     if (!requestedUser) {
-      return res.status(400).json({ error: "Verifiez vos informations de connexion" }); 
+      return res.status(400).send(new Error("Verifiez vos informations de connexion")); 
     }
 
     const authorize = await bcrypt.compare(
@@ -38,7 +43,7 @@ exports.login = async (req, res) => {
     );
 
     if (!authorize) {
-      return res.status(401).json({ error: "Verifiez vos informations de connexion"});
+      return res.status(401).json(new Error("Verifiez vos informations de connexion"));
     }
     res.status(200).json({
       userId: requestedUser._id,
@@ -49,6 +54,6 @@ exports.login = async (req, res) => {
           )
     });
   } catch (err) {
-    res.status(500).json({ error: "Erreur lors de la connexion" });
+    res.status(500).json(err);
   }
 };
